@@ -18,7 +18,7 @@ definition(
     namespace: "thinkdavid",
     author: "David Becher",
     description: "Rotate colors of the light over time slowly",
-    category: "My Apps",
+    category: "",
     iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
     iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png",
     iconX3Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png")
@@ -50,26 +50,16 @@ def initialize() {
 
 def lightOnHandler(evt) {
 	log.debug "lightOnHandler called"
-    log.debug thelight.currentValue('switch')
-    changeColor()
-}
-
-def changeColorTimer(time) {
-	runIn(time,changeColor)
+    runIn(10, changeColor)	
 }
 
 def changeColor() {
-	if (thelight.currentValue('switch')=='on') {
-    	log.debug "hue status: : ${thelight.currentValue('hue')}"
 	def hue = thelight.currentValue('hue')
-    	if (hue < 99) {
-        	hue = hue+10
-   			thelight.setHue(hue)
-       } else {
-        	thelight.setHue(1)
-       }
-       changeColorTimer(5)
-	}
-}
+    log.debug hue
+    	if (hue <= 100) 
+   			thelight.setHue(hue+1)
+        else
+        	thelight.setHue(0)
+    }
 
 // TODO: implement event handlers
