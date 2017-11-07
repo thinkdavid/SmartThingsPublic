@@ -50,16 +50,28 @@ def initialize() {
 
 def lightOnHandler(evt) {
 	log.debug "lightOnHandler called"
-    runIn(10, changeColor)	
+    thelight.setSaturation(100)
+    changeColor()
+}
+
+def changeColorTimer(time) {
+	runIn(time, changeColor)
 }
 
 def changeColor() {
+	if (thelight.currentValue('switch') == "on") {
 	def hue = thelight.currentValue('hue')
     log.debug hue
-    	if (hue <= 100) 
-   			thelight.setHue(hue+1)
-        else
+    	if (hue < 90) {
+        	log.debug "under 90: ${hue}"
+   			thelight.setHue(hue+10)
+        } else {
+        	log.debug "else: ${hue}"
         	thelight.setHue(0)
+		}
+	changeColorTimer(5)    
+    }
+
     }
 
 // TODO: implement event handlers
