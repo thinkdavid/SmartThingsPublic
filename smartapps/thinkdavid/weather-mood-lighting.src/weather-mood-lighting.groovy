@@ -13,6 +13,8 @@
  *  for the specific language governing permissions and limitations under the License.
  *
  */
+import java.util.regex.* 
+ 
 definition(
     name: "Weather Mood Lighting",
     namespace: "thinkdavid",
@@ -46,13 +48,14 @@ def updated() {
 }
 
 def initialize() {
+	// the selected light's switch will be the trigger for the smartApp.
 	subscribe(thelight, "switch.on", lightTurnedOnHandler)
-	// TODO: subscribe to attributes, devices, locations, etc.
 }
 
 def lightTurnedOnHandler(evt) {
 	log.debug "lightTurnedOn: $evt"
-    
+
+// Parameters for the Weather Underground API Call
     def params = [
     uri: "http://api.wunderground.com",
     path: "/api/18c51436d4714689/conditions/q/VA/Richmond.json"
@@ -61,6 +64,7 @@ def lightTurnedOnHandler(evt) {
 def weather
 def temp
 
+// Weather Underground API Call to get the weather
 try {
     httpGet(params) { resp ->
         log.debug "${resp.data.current_observation.weather}"
@@ -74,14 +78,19 @@ try {
 
 log.debug "before: ${thelight.currentValue('hue')}"
 log.debug "before: ${thelight.currentValue('saturation')}"
-if (weather == "Overcast" || weather == "Mostly Cloudy") {
+
+//Depending on the return of weather, set the light's colour hue.
+//Hue/Saturation color matches can be found in the template of Phillips Hue Mood Lighting
+if (weather =~ ".*Cloudy" || weather == "Overcast") {
 	thelight.setHue(23)
     thelight.setSaturation(56)
     log.debug "Color Changed: Cloudy"
-} else if (weather =="Light Rain" || weather == "Heavy Rain") {
+}  else if (weather =~ ".*Rain.*") {
 	thelight.setHue(70)
     thelight.setSaturation(100)
     log.debug "Color Changed: Rain"
+} else {
+	log.debug "No match for weather: ${weather}"
 }
 
 log.debug "after: ${thelight.currentValue('hue')}"
