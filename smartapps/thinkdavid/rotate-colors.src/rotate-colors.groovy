@@ -62,9 +62,9 @@ def changeColor() {
 	if (thelight.currentValue('switch') == "on") {
 	def hue = thelight.currentValue('hue')
     log.debug hue
-    	if (hue < 90) {
-        	log.debug "under 90: ${hue}"
-   			thelight.setHue(hue+10)
+    	if (hue < 92) {
+        	log.debug "under 92: ${hue}"
+   			thelight.setHue(hue+8)
         } else {
         	log.debug "else: ${hue}"
         	thelight.setHue(0)
