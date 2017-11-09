@@ -32,6 +32,10 @@ preferences {
 	section("Change the color of the light when it's on:") {
     	input "thelight", "capability.colorControl", required: true
     }
+    section("Send Push Notification?") {
+        input "sendPush", "bool", required: false,
+              title: "Send Push Notification when Opened?"
+    }
 }
 
 def installed() {
@@ -76,25 +80,44 @@ try {
     log.error "something went wrong: $e"
 }
 
-log.debug "before: ${thelight.currentValue('hue')}"
-log.debug "before: ${thelight.currentValue('saturation')}"
+// Only the morning light
+def start = timeToday("06:00", location.getTimeZone())
+def end = timeToday("10:00", location.getTimeZone())
+def now = new Date()
+
+log.debug "start: ${start}"
+log.debug "end: ${end}"
+log.debug "now: ${now}"
+
+// Send push notification with the weather
+if(timeOfDayIsBetween(start, end, now, location.timeZone))
+sendPush("Hello! You've turned on your weather light! It's ${temp} degrees today and the conditions are ${weather}")
 
 //Depending on the return of weather, set the light's colour hue.
-//Hue/Saturation color matches can be found in the template of Phillips Hue Mood Lighting
-if (weather =~ ".*Cloudy" || weather == "Overcast") {
-	thelight.setHue(23)
-    thelight.setSaturation(56)
-    log.debug "Color Changed: Cloudy"
-}  else if (weather =~ ".*Rain.*") {
-	thelight.setHue(70)
+// Hue is set on a percentage - so to set the hue = (hue degree/360)
+if (weather =~ ".*Rain.*") { // if raining, take precedence
+    thelight.setHue(70)
     thelight.setSaturation(100)
     log.debug "Color Changed: Rain"
-} else {
-	log.debug "No match for weather: ${weather}"
+} else if (temp < 50) { // if cold
+	thelight.setHue(58)
+    thelight.setSaturation(100)
+    log.debug "Color Changed: Cold"
+} else if (temp > 80) { // if hot
+	thelight.setHue(10)
+    thelight.setSaturation(100)
+    log.debug "Color Changed: Hot"
+} else if (weather =~ ".*Cloudy" || weather == "Overcast") { // if cloudy 
+    thelight.setHue(23)
+    thelight.setSaturation(56)
+    log.debug "Color Changed: Cloudy"
+} else { // anything else, we're good. essentially, not cloudy, not raining, not cold, not hot = green
+	thelight.setHue(42)
+    thelight.setSaturation(100)
+    log.debug "No match for weather: ${weather}"
 }
 
 log.debug "after: ${thelight.currentValue('hue')}"
 log.debug "after: ${thelight.currentValue('saturation')}"
-
 
 }
