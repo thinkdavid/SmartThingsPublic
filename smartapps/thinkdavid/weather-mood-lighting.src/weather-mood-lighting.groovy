@@ -34,7 +34,7 @@ preferences {
     }
     section("Send Push Notification?") {
         input "sendPush", "bool", required: false,
-              title: "Send Push Notification when Opened?"
+              title: "Send Push Notification when turned on with the current weather?"
     }
 }
 
