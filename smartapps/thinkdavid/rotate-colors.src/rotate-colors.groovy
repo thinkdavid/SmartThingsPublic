@@ -59,7 +59,7 @@ def changeColorTimer(time) {
 }
 
 def changeColor() {
-	if (thelight.currentValue('switch') == "on") {
+	if(thelight.currentValue('switch') == 'on') {
 	def hue = thelight.currentValue('hue')
     log.debug hue
     	if (hue < 92) {
@@ -71,7 +71,6 @@ def changeColor() {
 		}
 	changeColorTimer(5)    
     }
-
-    }
+}
 
 // TODO: implement event handlers
